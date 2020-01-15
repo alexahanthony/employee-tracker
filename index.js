@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require("inquirer");
 var figlet = require('figlet');
-var quitNum = 0;
 
 //cool name creator thing in node
 figlet('Alexas Employee Tracker', function (err, data) {
@@ -45,6 +44,7 @@ function askQuestions() {
             "view employees",
             "view roles",
             "view departments",
+            "update employee role",
             "QUIT"
         ],
         name: "choice"
@@ -74,12 +74,14 @@ function askQuestions() {
                 getTableData("department")
                 break;
 
+            case "update employee role":
+                updateEmployeeRole()
+                break;
+
             default:
                 connection.end();
-                // quitNum = 1;
                 break;
         }
-        //    if(quitNum < 1) {askQuestions();}
     })
 }
 
@@ -91,38 +93,96 @@ function getTableData(tableName) {
     })
 }
 
-// function addEmployeeData() {
-//     console.log("Creating a new employee...\n");
-//     var query = connection.query(
-//       "INSERT INTO employee SET ?",
-//       {
-//         first_name: "",
-//         last_name: "",
-//         role_id: "",
-//         manager_id: ""
-//       },
-//       function(err, res) {
-//         if (err) throw err;
-//         console.log(res.affectedRows + " employee created!\n");
-//         askQuestions();
-//       }
-//     );
-//   }
-
-function addRoleData() {
-    connection.query('SELECT id,name FROM department', function (err, data) {
-        if (err) throw err;
-        console.log(data);
-
+function addEmployeeData() {
+    let firstName = "";
+    let lastName = "";
+    let roleId = "";
+    let managerId = "";
+    inquirer.prompt({
+        type: "input",
+        name: "firstname",
+        message: "what is the employee FIRST NAME?"
+    }).then(answers => {
+        firstName = answers.firstname;
         inquirer.prompt({
-            message: "which department?",
-            type: "list",
-            choices: data,
-            name: "choice"
+            type: "input",
+            name: "lastname",
+            message: "what is the employee LAST NAME?"
         }).then(answers => {
-            console.log(answers.choice)
+            lastName = answers.lastname;
+            connection.query('SELECT title FROM role', function (err, data) {
+                if (err) throw err;
+                inquirer.prompt({
+                    message: "which role?",
+                    type: "list",
+                    choices: data.map(a => a.title),
+                    name: "choice"
+                }).then(answers => {
+                    connection.query('SELECT id FROM role WHERE title = ?', [answers.choice], function (err, data) {
+                        if (err) throw err;
+                        roleId = data[0].id;
+                        connection.query('SELECT first_name FROM employee', function (err, data) {
+                            if (err) throw err;
+                            inquirer.prompt({
+                                message: "which boss?",
+                                type: "list",
+                                choices: data.map(a => a.first_name),
+                                name: "choice"
+                            }).then(answers => {
+                                connection.query('SELECT id FROM employee WHERE first_name = ?', [answers.choice], function (err, data) {
+                                    if (err) throw err;
+                                    managerId = data[0].id;
+                                    connection.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("' + firstName + '","' + lastName + '","' + roleId + '","' + managerId + '")', function (err, data) {
+                                        if (err) throw err;
+                                        getTableData("employee")
+                                    })
+                                })
+                            })
+                        })
+                    })
+                });
+            })
         })
     })
+}
+
+function addRoleData() {
+    let roleTitle = "";
+    let salary = "";
+    let deptId = "";
+    inquirer.prompt({
+        type: "input",
+        name: "role",
+        message: "what role would you like to add?"
+    }).then(answers => {
+        roleTitle = answers.role;
+        inquirer.prompt({
+            type: "input",
+            name: "salary",
+            message: "what salary is this role?"
+        }).then(answers => {
+            salary = answers.salary;
+            connection.query('SELECT name FROM department', function (err, data) {
+                if (err) throw err;
+                console.log(data)
+                inquirer.prompt({
+                    message: "which department?",
+                    type: "list",
+                    choices: data,
+                    name: "choice"
+                }).then(answers => {
+                    connection.query('SELECT id FROM department WHERE name = ?', [answers.choice], function (err, data) {
+                        if (err) throw err;
+                        deptId = data[0].id;
+                        connection.query('INSERT INTO role (title, salary, department_id) VALUES ("' + roleTitle + '","' + salary + '","' + deptId + '")', function (err, data) {
+                            if (err) throw err;
+                            getTableData("role")
+                        })
+                    })
+                })
+            })
+        })
+    });
 }
 
 function addDepartmentData() {
@@ -131,75 +191,10 @@ function addDepartmentData() {
         name: "deptname",
         message: "what department would you like to add?"
     }).then(function (response) {
-        console.log('setting dept data');
         connection.query('INSERT INTO department (name) VALUES (?)', [response.deptname], function (err, data) {
             if (err) throw err;
             getTableData("department");
-            // console.table(response.deptname + " added!");
-            // askQuestions();
         })
     }
     );
-}
-
-
-
-//////////
-function getArtistData() {
-    inquirer.prompt({
-        type: "input",
-        name: "artist09iop",
-        message: "who do we search for?"
-    }).then(function (artistAnswers) {
-        console.log('get artist data function');
-        connection.query('SELECT * FROM top5000 WHERE artist = ?', [artistAnswers.artist], function (err, data) {
-            if (err) throw err;
-            console.table(data);
-            askQuestions();
-        })
-    })
-}
-
-function getSongData() {
-    inquirer.prompt({
-        type: "input",
-        name: "song",
-        message: "which song do we search for?"
-    }).then(function (songAnswers) {
-        console.log('get song data function');
-        connection.query('SELECT * FROM top5000 WHERE song = ?', [songAnswers.song], function (err, data) {
-            if (err) throw err;
-            console.table(data);
-            askQuestions();
-        })
-    })
-}
-
-function getRangedData() {
-    inquirer.prompt([
-        {
-            type: "number",
-            name: "start",
-            message: "which position to start at?"
-        },
-        {
-            type: "number",
-            name: "end",
-            message: "which position to end at?"
-        }
-    ]).then(function (rangedAnswers) {
-        console.log(rangedAnswers);
-        connection.query('SELECT * FROM top5000 WHERE position BETWEEN ? AND ?', [rangedAnswers.start, rangedAnswers.end], function (err, data) {
-            if (err) throw err;
-            console.table(data);
-            askQuestions();
-        })
-    })
-}
-
-function getMultiEntryArtistData() {
-    connection.query(" SELECT artist, COUNT(artist) AS count FROM top5000 GROUP BY artist HAVING count>1 ORDER BY count DESC", function (err, data) {
-        if (err) throw err;
-        console.table(data);
-    })
 }

@@ -1,73 +1,39 @@
-# employee-tracker
+# employee tracker
 
-* **department**:
+![GIF](./Gif.gif)
 
-  * **id** - INT PRIMARY KEY
-  * **name** - VARCHAR(30) to hold department name
+# Table of Contents (Optional)
+N/A
 
-* **role**:
+# Installation
 
-  * **id** - INT PRIMARY KEY
-  * **title** -  VARCHAR(30) to hold role title
-  * **salary** -  DECIMAL to hold role salary
-  * **department_id** -  INT to hold reference to department role belongs to
+View Github Repository. https://github.com/alexahanthony/employee-tracker
 
-* **employee**:
+# Usage
 
-  * **id** - INT PRIMARY KEY
-  * **first_name** - VARCHAR(30) to hold employee first name
-  * **last_name** - VARCHAR(30) to hold employee last name
-  * **role_id** - INT to hold reference to role employee has
-  * **manager_id** - INT to hold reference to another employee that manager of the current employee. This field may be null if the employee has no manager
-  
-Build a command-line application that at a minimum allows the user to:
+This commandline application allows you to create a table of employees, departments, roles, salaries, and allows the user to manipulate the inputs to change the employee information.
 
-  * Add roles, employees
+# Credits
+There were no collaborators, (other than classmates and teacher feedback).
 
-  * Update employee roles
+# NPM Packages: 
+* "console.table": "^0.10.0",
+* "figlet": "^1.2.4",
+* "inquirer": "^7.0.3",
+* "mysql": "^2.17.1"
 
-Bonus points if you're able to:
+# Third-party assets: 
 
-  * Update employee managers
+https://stackoverflow.com/ for help with syntax
 
-  * View employees by manager
+# License
+N/A
 
-  * Delete departments, roles, and employees
+# Badges
+N/A
 
-  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+# Contributing
+N/A
 
-
-* You may wish to have a separate file containing functions for performing specific SQL queries you'll need to use. Could a constructor function or a class be helpful for organizing these?
-
-* You will need to perform a variety of SQL JOINS to complete this assignment, and it's recommended you review the week's activities if you need a refresher on this.
-
-### Hints
-
-* You may wish to include a `seed.sql` file to pre-populate your database. This will make development of individual features much easier.
-
-* Focus on getting the basic functionality completed before working on more advanced features.
-
-* Review the week's activities for a refresher on MySQL.
-
-* Check out [SQL Bolt](https://sqlbolt.com/) for some extra MySQL help.
-
-## Minimum Requirements
-
-* Functional application.
-
-* GitHub repository with a unique name and a README describing the project.
-
-* The command-line application should allow users to:
-
-  * Add departments, roles, employees
-
-  * View departments, roles, employees
-
-  * Update employee roles
-
-
-## Submission on BCS
-
-You are required to submit the following:
-
-* The URL of the GitHub repository
+# Tests
+N/A
